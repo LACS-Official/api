@@ -6,6 +6,7 @@ import { timing } from 'hono/timing';
 import { Env } from './types';
 import auth from './routes/auth';
 import analytics from './routes/analytics';
+import { serveStatic } from '@hono/node-server/serve-static';
 
 // 创建 Hono 应用实例
 const app = new Hono<{ Bindings: Env }>();
@@ -36,41 +37,26 @@ app.use('*', cors({
   credentials: true
 }));
 
-// 静态文件服务 - 为 oauth-example.html 提供访问
-app.get('/oauth-example.html', async (c) => {
-  try {
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const htmlPath = path.join(process.cwd(), 'oauth-example.html');
-    const htmlContent = await fs.readFile(htmlPath, 'utf-8');
-    return new Response(htmlContent, {
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8'
-      }
-    });
-  } catch (error) {
-    return c.json({
-      success: false,
-      error: '文件不存在',
-      path: '/oauth-example.html'
-    }, 404);
-  }
-});
+// 静态文件服务，优先处理静态资源
+app.use('*', serveStatic({ root: './public' }));
+
+// 让根路径返回 index.html
+app.get('/', serveStatic({ root: './public', path: 'index.html' }));
 
 // 健康检查
-app.get('/', (c) => {
-  return c.json({
-    success: true,
-    message: 'Hugo 网站 API 服务运行正常',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      auth: '/appweb/auth',
-      analytics: '/api/analytics',
-      health: '/'
-    }
-  });
-});
+// app.get('/', (c) => {
+//   return c.json({
+//     success: true,
+//     message: 'Hugo 网站 API 服务运行正常',
+//     version: '1.0.0',
+//     timestamp: new Date().toISOString(),
+//     endpoints: {
+//       auth: '/appweb/auth',
+//       analytics: '/api/analytics',
+//       health: '/'
+//     }
+//   });
+// });
 
 // API 路由
 app.route('/appweb/auth', auth);
