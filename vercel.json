@@ -1,17 +1,6 @@
 {
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/src/index.ts"
-    },
-    {
-      "source": "/appweb/(.*)",
-      "destination": "/src/index.ts"
-    },
-    {
-      "source": "/",
-      "destination": "/public/index.html"
-    }
+    { "source": "/", "destination": "/index.html" }
   ],
   "headers": [
     {
