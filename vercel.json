@@ -1,6 +1,8 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/appweb/:match*", "destination": "/src/index.ts" },
+    { "source": "/api/:match*", "destination": "/src/index.ts" }
   ],
   "headers": [
     {
