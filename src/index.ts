@@ -7,6 +7,7 @@ import { Env } from './types/index';
 import auth from './routes/auth';
 import analytics from './routes/analytics';
 import { serveStatic } from '@hono/node-server/serve-static';
+import { handle } from '@hono/node-server/vercel';
 
 // 创建 Hono 应用实例
 const app = new Hono<{ Bindings: Env }>();
@@ -103,4 +104,4 @@ app.onError((err, c) => {
   }, 500);
 });
 
-export default app; 
+export default handle(app); 
