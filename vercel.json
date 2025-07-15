@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "src/index.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
@@ -28,7 +23,5 @@
         }
       ]
     }
-  ],
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  ]
 } 
