@@ -15,18 +15,24 @@ export class GitHubAPI {
   async exchangeToken(code: string): Promise<GitHubAuthResponse> {
     try {
       // 向 GitHub API 交换访问令牌
-      const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-          code
-        })
-      });
+      // 设置10秒超时时间
+      const tokenResponse = await Promise.race([
+        fetch('https://github.com/login/oauth/access_token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            client_id: this.clientId,
+            client_secret: this.clientSecret,
+            code
+          })
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('GitHub令牌交换请求超时')), 10000)
+        )
+       ]) as Response;
 
       if (!tokenResponse.ok) {
         throw new Error(`GitHub token exchange failed: ${tokenResponse.status}`);
@@ -36,12 +42,18 @@ export class GitHubAPI {
 
       if (tokenData.access_token) {
         // 获取用户信息
-        const userResponse = await fetch('https://api.github.com/user', {
+        // 设置10秒超时时间
+      const userResponse = await Promise.race([
+        fetch('https://api.github.com/user', {
           headers: {
             'Authorization': `token ${tokenData.access_token}`,
             'Accept': 'application/vnd.github.v3+json'
           }
-        });
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('GitHub用户信息请求超时')), 10000)
+        )
+      ]) as Response;
 
         if (!userResponse.ok) {
           throw new Error(`Failed to fetch user info: ${userResponse.status}`);
@@ -69,12 +81,18 @@ export class GitHubAPI {
    */
   async validateToken(token: string): Promise<GitHubUser> {
     try {
-      const response = await fetch('https://api.github.com/user', {
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
+      // 设置10秒超时时间
+      const response = await Promise.race([
+        fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('GitHub令牌验证请求超时')), 10000)
+        )
+      ]) as Response;
 
       if (!response.ok) {
         throw new Error(`Token validation failed: ${response.status}`);
@@ -86,4 +104,4 @@ export class GitHubAPI {
       throw error;
     }
   }
-} 
+}

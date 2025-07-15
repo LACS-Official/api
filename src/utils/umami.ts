@@ -17,13 +17,18 @@ export class UmamiAPI {
   async getPageMetrics(page: string): Promise<UmamiMetrics> {
     try {
       const url = `${this.apiUrl}/api/websites/${this.websiteId}/metrics?page=${encodeURIComponent(page)}`;
-      
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 设置10秒超时时间
+      const response = await Promise.race([
+        fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${this.apiToken}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Umami页面数据请求超时')), 10000)
+        )
+      ]) as Response;
 
       if (!response.ok) {
         throw new Error(`Umami API request failed: ${response.status}`);
@@ -52,12 +57,18 @@ export class UmamiAPI {
     try {
       const url = `${this.apiUrl}/api/websites/${this.websiteId}/stats`;
       
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 设置10秒超时时间
+      const response = await Promise.race([
+        fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${this.apiToken}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Umami网站统计请求超时')), 10000)
+        )
+      ]) as Response;
 
       if (!response.ok) {
         throw new Error(`Umami API request failed: ${response.status}`);
@@ -85,12 +96,19 @@ export class UmamiAPI {
     try {
       const url = `${this.apiUrl}/api/websites/${this.websiteId}/pages?limit=${limit}`;
       
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 设置10秒超时时间
+      const response = await Promise.race([
+        fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${this.apiToken}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Umami热门页面请求超时')), 10000)
+        )
+      ]) as Response;
+      
 
       if (!response.ok) {
         throw new Error(`Umami API request failed: ${response.status}`);
@@ -104,4 +122,4 @@ export class UmamiAPI {
       throw error;
     }
   }
-} 
+}
