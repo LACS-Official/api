@@ -37,7 +37,7 @@ app.use('*', cors({
 app.get('/', (c) => {
   return c.json({
     success: true,
-    message: 'Hugo 网站 API 服务运行正常',
+    message: 'Hugo 网站 API 运行正常',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     endpoints: {
