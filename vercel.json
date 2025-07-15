@@ -3,6 +3,12 @@
   "builds": [
     { "src": "src/server.ts", "use": "@vercel/node" }
   ],
+  "routes": [
+    { "src": "/public/(.*)", "dest": "/public/$1" }
+  ],
+  "static": {
+    "public": "public"
+  },
   "headers": [
     {
       "source": "/(.*)",
