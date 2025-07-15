@@ -20,6 +20,11 @@
 ### 1. 安装依赖
 
 ```bash
+# 克隆项目（如果需要）
+git clone <repository-url>
+cd hono_api
+
+# 安装依赖
 npm install
 ```
 

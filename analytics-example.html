@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umami 分析功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f6f8fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #0366d6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .btn:hover { background: #0256cc; }
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5da;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .loading { color: #666; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e1e4e8;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0366d6;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #586069;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Umami 分析功能测试</h1>
+        
+        <div class="info">
+            <h3>配置说明：</h3>
+            <p>请修改下面的 <code>API_BASE_URL</code> 为您的实际 Vercel URL，然后测试各项分析功能。</p>
+        </div>
+
+        <div class="input-group">
+            <label for="apiUrl">API 基础 URL：</label>
+            <input type="text" id="apiUrl" value="https://your-app.vercel.app" placeholder="https://your-app.vercel.app">
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>页面访问量查询</h2>
+        <div class="input-group">
+            <label for="pagePath">页面路径：</label>
+            <input type="text" id="pagePath" value="/blog/post-1" placeholder="/blog/post-1">
+        </div>
+        <button class="btn" onclick="getPageViews()">获取页面访问量</button>
+        <div id="pageViewsResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>网站总体统计</h2>
+        <button class="btn" onclick="getStats()">获取网站统计</button>
+        <div id="statsResult"></div>
+        <div id="statsCards" class="stats-grid"></div>
+    </div>
+
+    <div class="container">
+        <h2>热门页面</h2>
+        <div class="input-group">
+            <label for="topPagesLimit">显示数量：</label>
+            <input type="number" id="topPagesLimit" value="10" min="1" max="50">
+        </div>
+        <button class="btn" onclick="getTopPages()">获取热门页面</button>
+        <div id="topPagesResult"></div>
+    </div>
+
+    <script>
+        // 分析 API 客户端
+        class AnalyticsClient {
+            constructor(baseURL) {
+                this.baseURL = baseURL.replace(/\/$/, '');
+            }
+
+            async request(endpoint) {
+                const url = `${this.baseURL}${endpoint}`;
+                
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || `HTTP ${response.status}`);
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error(`API 请求失败:`, error);
+                    throw error;
+                }
+            }
+
+            async getPageViews(page) {
+                const params = new URLSearchParams({ page });
+                return this.request(`/api/analytics/pageviews?${params}`);
+            }
+
+            async getStats() {
+                return this.request('/api/analytics/stats');
+            }
+
+            async getTopPages(limit = 10) {
+                const params = new URLSearchParams({ limit: limit.toString() });
+                return this.request(`/api/analytics/top-pages?${params}`);
+            }
+        }
+
+        // 显示结果的辅助函数
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${content}</div>`;
+        }
+
+        function showLoading(elementId) {
+            showResult(elementId, '正在加载...', 'loading');
+        }
+
+        // 获取页面访问量
+        async function getPageViews() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const pagePath = document.getElementById('pagePath').value;
+            
+            if (!apiUrl || !pagePath) {
+                showResult('pageViewsResult', '请填写 API URL 和页面路径', 'error');
+                return;
+            }
+
+            showLoading('pageViewsResult');
+            
+            try {
+                const client = new AnalyticsClient(apiUrl);
+                const result = await client.getPageViews(pagePath);
+                
+                if (result.success) {
+                    const formatted = JSON.stringify(result.data, null, 2);
+                    showResult('pageViewsResult', `页面访问量数据：\n${formatted}`, 'success');
+                } else {
+                    showResult('pageViewsResult', `获取失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('pageViewsResult', `请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 获取网站统计
+        async function getStats() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            if (!apiUrl) {
+                showResult('statsResult', '请填写 API URL', 'error');
+                return;
+            }
+
+            showLoading('statsResult');
+            
+            try {
+                const client = new AnalyticsClient(apiUrl);
+                const result = await client.getStats();
+                
+                if (result.success) {
+                    const formatted = JSON.stringify(result.data, null, 2);
+                    showResult('statsResult', `网站统计数据：\n${formatted}`, 'success');
+                    
+                    // 显示统计卡片
+                    displayStatsCards(result.data);
+                } else {
+                    showResult('statsResult', `获取失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('statsResult', `请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 显示统计卡片
+        function displayStatsCards(data) {
+            const container = document.getElementById('statsCards');
+            
+            if (!data || typeof data !== 'object') {
+                container.innerHTML = '';
+                return;
+            }
+
+            const cards = Object.entries(data).map(([key, value]) => {
+                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                return `
+                    <div class="stat-card">
+                        <div class="stat-value">${value}</div>
+                        <div class="stat-label">${label}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = cards;
+        }
+
+        // 获取热门页面
+        async function getTopPages() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const limit = parseInt(document.getElementById('topPagesLimit').value) || 10;
+            
+            if (!apiUrl) {
+                showResult('topPagesResult', '请填写 API URL', 'error');
+                return;
+            }
+
+            showLoading('topPagesResult');
+            
+            try {
+                const client = new AnalyticsClient(apiUrl);
+                const result = await client.getTopPages(limit);
+                
+                if (result.success) {
+                    const formatted = JSON.stringify(result.data, null, 2);
+                    showResult('topPagesResult', `热门页面数据：\n${formatted}`, 'success');
+                } else {
+                    showResult('topPagesResult', `获取失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('topPagesResult', `请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时的初始化
+        window.addEventListener('load', () => {
+            // 可以在这里添加自动测试逻辑
+            console.log('Umami 分析测试页面已加载');
+        });
+    </script>
+</body>
+</html>

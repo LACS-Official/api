@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { UmamiAPI } from '../utils/umami';
-import { ApiResponse, UmamiMetrics, Env } from '../types';
+import { UmamiAPI } from '../utils/umami.js';
+import { ApiResponse, UmamiMetrics, Env } from '../types/index.js';
 
 const analytics = new Hono<{ Bindings: Env }>();
 

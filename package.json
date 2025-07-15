@@ -2,6 +2,7 @@
   "name": "appwebsite-hugo-api",
   "version": "1.0.0",
   "description": "Hugo 网站 API 服务",
+  "type": "module",
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",

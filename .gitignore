@@ -48,3 +48,8 @@ Thumbs.db
 
 # Vercel
 .vercel 
+
+
+#augment
+.augment/
+.vercel
