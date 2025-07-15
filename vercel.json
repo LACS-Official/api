@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
+      "destination": "/src/index.ts"
+    },
+    {
+      "source": "/appweb/(.*)",
       "destination": "/src/index.ts"
     }
   ],
