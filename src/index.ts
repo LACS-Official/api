@@ -3,9 +3,9 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { timing } from 'hono/timing';
-import { Env } from './types/index.js';
-import auth from './routes/auth.js';
-import analytics from './routes/analytics.js';
+import { Env } from './types/index';
+import auth from './routes/auth';
+import analytics from './routes/analytics';
 import { serveStatic } from '@hono/node-server/serve-static';
 
 // 创建 Hono 应用实例

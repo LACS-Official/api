@@ -4,8 +4,8 @@ import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { timing } from 'hono/timing';
 import { Env } from '../src/types';
-import auth from '../src/routes/auth.js';
-import analytics from '../src/routes/analytics.js';
+import auth from '../src/routes/auth';
+import analytics from '../src/routes/analytics';
 
 // 创建 Hono 应用实例
 const app = new Hono<{ Bindings: Env }>();
@@ -84,3 +84,7 @@ app.onError((err, c) => {
 
 // Vercel 导出处理函数
 export default app.fetch;
+
+// 同时提供 CommonJS 导出以确保兼容性
+module.exports = app.fetch;
+module.exports.default = app.fetch;

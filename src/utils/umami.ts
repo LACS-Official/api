@@ -29,8 +29,8 @@ export class UmamiAPI {
         throw new Error(`Umami API request failed: ${response.status}`);
       }
 
-      const data = await response.json();
-      
+      const data = await response.json() as any;
+
       // 根据 Umami API 响应格式调整
       return {
         pageviews: data.pageviews || 0,
@@ -63,8 +63,8 @@ export class UmamiAPI {
         throw new Error(`Umami API request failed: ${response.status}`);
       }
 
-      const data = await response.json();
-      
+      const data = await response.json() as any;
+
       return {
         pageviews: data.pageviews || 0,
         visitors: data.visitors || 0,
@@ -96,8 +96,8 @@ export class UmamiAPI {
         throw new Error(`Umami API request failed: ${response.status}`);
       }
 
-      const data = await response.json();
-      
+      const data = await response.json() as any;
+
       return data.pages || [];
     } catch (error) {
       console.error('Umami API error:', error);

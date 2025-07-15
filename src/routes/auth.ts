@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { GitHubAPI } from '../utils/github.js';
-import { ApiResponse, GitHubAuthResponse, Env } from '../types/index.js';
+import { GitHubAPI } from '../utils/github';
+import { ApiResponse, GitHubAuthResponse, Env } from '../types/index';
 
 const auth = new Hono<{ Bindings: Env }>();
 

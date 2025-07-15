@@ -1,17 +1,39 @@
 # Vercel 部署指南
 
-## 修复内容
+## 最新修复内容 (2025-07-15)
+
+### 主要问题解决方案
+
+1. **更新了 Vercel 配置** (`vercel.json`)
+   - 从 `builds` 改为 `functions` 配置
+   - 使用 `@vercel/node@3` 运行时
+   - 从 `routes` 改为 `rewrites` 配置
+
+2. **修复了 Node.js 版本兼容性** (`package.json`)
+   - 将 Node.js 版本从 `>=18.0.0` 改为 `18.x`
+   - 将模块类型从 `module` 改为 `commonjs`
+
+3. **更新了 TypeScript 配置** (`tsconfig.json`)
+   - 将 target 从 `ES2022` 改为 `ES2020`
+   - 将 module 从 `ESNext` 改为 `CommonJS`
+   - 添加了 `lib: ["ES2020"]` 配置
+
+4. **修复了 API 导出方式** (`api/index.ts`)
+   - 添加了 CommonJS 导出以确保兼容性
+   - 同时支持 ES6 和 CommonJS 模块系统
+
+5. **修复了 TypeScript 类型错误**
+   - 在 `src/utils/github.ts` 中使用类型断言
+   - 在 `src/utils/umami.ts` 中修复 JSON 响应类型
+
+## 之前的修复内容
 
 1. **创建了专门的 Vercel API 入口文件** (`api/index.ts`)
    - 移除了静态文件服务，避免与 API 路由冲突
    - 正确配置了环境变量处理
    - 添加了中文错误消息
 
-2. **更新了 Vercel 配置** (`vercel.json`)
-   - 将构建入口改为 `api/index.ts`
-   - 保持了 CORS 配置
-
-3. **修复了 TypeScript 配置**
+2. **修复了 TypeScript 配置**
    - 包含了 `api` 目录
    - 移除了 `rootDir` 限制
 
@@ -59,15 +81,27 @@ git push origin main
 
 ## 主要修复
 
-### 问题 1: 404 错误
+### 问题 1: 部署检查失败
+**原因**: Vercel 配置与最新版本不兼容
+**解决**: 更新了 vercel.json，使用 `functions` 而不是 `builds`
+
+### 问题 2: Node.js 版本兼容性
+**原因**: 项目使用了 ESM 模块，但 Vercel 默认使用 CommonJS
+**解决**: 将项目配置为 CommonJS，并更新了 Node.js 版本要求
+
+### 问题 3: TypeScript 类型错误
+**原因**: 严格模式下 JSON 解析返回 `unknown` 类型
+**解决**: 使用类型断言处理 API 响应
+
+### 问题 4: 404 错误
 **原因**: Vercel 配置指向了错误的入口文件
 **解决**: 创建了专门的 `api/index.ts` 作为 Vercel 入口
 
-### 问题 2: 返回 HTML 而不是 JSON
+### 问题 5: 返回 HTML 而不是 JSON
 **原因**: 静态文件服务中间件干扰了 API 路由
 **解决**: 在 Vercel 入口文件中移除了静态文件服务
 
-### 问题 3: 中文错误消息
+### 问题 6: 中文错误消息
 **原因**: 错误处理没有正确的中文消息
 **解决**: 更新了 404 和错误处理器，添加了详细的中文错误信息
 

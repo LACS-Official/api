@@ -32,7 +32,7 @@ export class GitHubAPI {
         throw new Error(`GitHub token exchange failed: ${tokenResponse.status}`);
       }
 
-      const tokenData: GitHubTokenResponse = await tokenResponse.json();
+      const tokenData = await tokenResponse.json() as GitHubTokenResponse;
 
       if (tokenData.access_token) {
         // 获取用户信息
@@ -47,7 +47,7 @@ export class GitHubAPI {
           throw new Error(`Failed to fetch user info: ${userResponse.status}`);
         }
 
-        const userData: GitHubUser = await userResponse.json();
+        const userData = await userResponse.json() as GitHubUser;
 
         return {
           access_token: tokenData.access_token,
@@ -80,7 +80,7 @@ export class GitHubAPI {
         throw new Error(`Token validation failed: ${response.status}`);
       }
 
-      return await response.json();
+      return await response.json() as GitHubUser;
     } catch (error) {
       console.error('Token validation error:', error);
       throw error;

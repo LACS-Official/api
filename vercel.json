@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "src/server.ts", "use": "@vercel/node" }
-  ],
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@3"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -13,7 +15,7 @@
       ]
     }
   ],
-  "routes": [
-    { "src": "/public/(.*)", "dest": "/public/$1" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
   ]
 }

@@ -2,7 +2,7 @@
   "name": "appwebsite-hugo-api",
   "version": "1.0.0",
   "description": "Hugo 网站 API 服务",
-  "type": "module",
+  "type": "commonjs",
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx src/server.ts",
@@ -25,6 +25,6 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   }
 }
