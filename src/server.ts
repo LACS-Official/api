@@ -18,4 +18,4 @@ if (process.env.VERCEL !== '1') {
 }
 
 // Vercel 部署时只需导出 handler
-export default app.fetch; 
+export default app.fetch;
