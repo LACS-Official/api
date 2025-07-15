@@ -63,7 +63,12 @@ app.get('/', (c) => {
     success: true,
     message: 'Hugo 网站 API 服务运行正常',
     version: '1.0.0',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: '/appweb/auth',
+      analytics: '/api/analytics',
+      health: '/'
+    }
   });
 });
 
@@ -76,7 +81,16 @@ app.notFound((c) => {
   return c.json({
     success: false,
     error: '接口不存在',
-    path: c.req.path
+    path: c.req.path,
+    availableEndpoints: [
+      'GET /',
+      'GET /oauth-example.html',
+      'POST /appweb/auth/exchange-token',
+      'POST /appweb/auth/validate-token',
+      'GET /api/analytics/pageviews',
+      'GET /api/analytics/stats',
+      'GET /api/analytics/top-pages'
+    ]
   }, 404);
 });
 
@@ -86,7 +100,8 @@ app.onError((err, c) => {
   return c.json({
     success: false,
     error: '服务器内部错误',
-    message: process.env.NODE_ENV === 'development' ? err.message : '请稍后重试'
+    message: process.env.NODE_ENV === 'development' ? err.message : '请稍后重试',
+    timestamp: new Date().toISOString()
   }, 500);
 });
 
