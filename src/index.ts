@@ -56,6 +56,9 @@ app.use(async (c, next) => {
   return next();
 });
 
+// 静态文件支持 favicon.ico
+app.use('/favicon.ico', serveStatic({ root: './public' }));
+
 // 健康检查
 // app.get('/', (c) => {
 //   return c.json({
