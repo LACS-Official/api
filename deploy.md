@@ -4,10 +4,11 @@
 
 ### 主要问题解决方案
 
-1. **更新了 Vercel 配置** (`vercel.json`)
-   - 从 `builds` 改为 `functions` 配置
-   - 使用 `@vercel/node@3` 运行时
-   - 从 `routes` 改为 `rewrites` 配置
+1. **修复了 Vercel 运行时版本错误** (`vercel.json`)
+   - 错误: `Function Runtimes must have a valid version`
+   - 解决: 使用完整版本号 `@vercel/node@3.0.0`
+   - 回到 `builds` 配置，因为这是当前推荐的方式
+   - 使用 `routes` 而不是 `rewrites`
 
 2. **修复了 Node.js 版本兼容性** (`package.json`)
    - 将 Node.js 版本从 `>=18.0.0` 改为 `18.x`
@@ -82,8 +83,8 @@ git push origin main
 ## 主要修复
 
 ### 问题 1: 部署检查失败
-**原因**: Vercel 配置与最新版本不兼容
-**解决**: 更新了 vercel.json，使用 `functions` 而不是 `builds`
+**原因**: Vercel 配置中的运行时版本格式不正确
+**解决**: 更新了 vercel.json，使用完整版本号 `@vercel/node@3.0.0`
 
 ### 问题 2: Node.js 版本兼容性
 **原因**: 项目使用了 ESM 模块，但 Vercel 默认使用 CommonJS
