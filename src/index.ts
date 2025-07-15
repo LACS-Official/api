@@ -37,11 +37,23 @@ app.use('*', cors({
   credentials: true
 }));
 
-// 静态文件服务，优先处理静态资源
-app.use('*', serveStatic({ root: './public' }));
+// 让根路径返回服务已开启的 JSON 信息
+app.get('/', (c) => {
+  return c.json({
+    success: true,
+    message: '服务已开启',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// 让根路径返回 index.html
-app.get('/', serveStatic({ root: './public', path: 'index.html' }));
+// 只对非根路径的 GET 请求提供静态服务
+app.use(async (c, next) => {
+  if (c.req.path !== '/') {
+    return serveStatic({ root: './public' })(c, next);
+  }
+  return next();
+});
 
 // 健康检查
 // app.get('/', (c) => {
