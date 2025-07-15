@@ -104,4 +104,4 @@ app.onError((err, c) => {
   }, 500);
 });
 
-export default handle(app); 
+export default app; 
