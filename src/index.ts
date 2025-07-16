@@ -32,11 +32,17 @@ app.use('*', logger());
 app.use('*', prettyJSON());
 app.use('*', timing());
 app.use('*', cors({
-  origin: ['http://localhost:3000', 'http://localhost:1313', 'https://your-domain.com'],
+  origin: ['http://localhost:3000', 'http://localhost:1313', 'https://your-domain.com', 'https://lacs.cc', 'https://*.lacs.cc'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
+// 调试中间件 - 记录所有请求
+app.use('*', async (c, next) => {
+  console.log(`[${new Date().toISOString()}] ${c.req.method} ${c.req.path}`);
+  await next();
+});
 
 // 让根路径返回服务已开启的 JSON 信息
 app.get('/', (c) => {
@@ -59,31 +65,18 @@ app.use(async (c, next) => {
 // 静态文件支持 favicon.ico
 app.use('/favicon.ico', serveStatic({ root: './public' }));
 
-// 健康检查
-// app.get('/', (c) => {
-//   return c.json({
-//     success: true,
-//     message: 'Hugo 网站 API 服务运行正常',
-//     version: '1.0.0',
-//     timestamp: new Date().toISOString(),
-//     endpoints: {
-//       auth: '/appweb/auth',
-//       analytics: '/api/analytics',
-//       health: '/'
-//     }
-//   });
-// });
-
-// API 路由
+// API 路由 - 确保在静态文件中间件之后
 app.route('/appweb/auth', auth);
 app.route('/api/analytics', analytics);
 
 // 404 处理
 app.notFound((c) => {
+  console.log(`[404] 路径不存在: ${c.req.method} ${c.req.path}`);
   return c.json({
     success: false,
     error: '接口不存在',
     path: c.req.path,
+    method: c.req.method,
     availableEndpoints: [
       'GET /',
       'GET /oauth-example.html',
