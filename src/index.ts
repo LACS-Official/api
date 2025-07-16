@@ -23,6 +23,15 @@ app.use('*', async (c, next) => {
       UMAMI_API_TOKEN: process.env.UMAMI_API_TOKEN || '',
       UMAMI_API_URL: process.env.UMAMI_API_URL || ''
     };
+  } else {
+    // 在Vercel环境中，确保环境变量可用
+    c.env = {
+      GITHUB_CLIENT_ID: c.env.GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
+      GITHUB_CLIENT_SECRET: c.env.GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
+      UMAMI_WEBSITE_ID: c.env.UMAMI_WEBSITE_ID || process.env.UMAMI_WEBSITE_ID || '',
+      UMAMI_API_TOKEN: c.env.UMAMI_API_TOKEN || process.env.UMAMI_API_TOKEN || '',
+      UMAMI_API_URL: c.env.UMAMI_API_URL || process.env.UMAMI_API_URL || ''
+    };
   }
   await next();
 });
