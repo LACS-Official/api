@@ -58,7 +58,18 @@ auth.post('/exchange-token', async (c) => {
 
     console.log(`[AUTH] 开始交换令牌...`);
     const githubAPI = new GitHubAPI(clientId, clientSecret);
-    const authResponse: GitHubAuthResponse = await githubAPI.exchangeToken(code);
+    let authResponse: GitHubAuthResponse;
+    try {
+      authResponse = await githubAPI.exchangeToken(code);
+    } catch (error) {
+      console.error('[AUTH] GitHub token exchange error:', error);
+      // 根据错误类型返回不同的状态码
+      const statusCode = error instanceof Error && error.message.includes('超时') ? 408 : 400;
+      return c.json<ApiResponse>({
+        success: false,
+        error: error instanceof Error ? error.message : 'GitHub认证失败'
+      }, statusCode);
+    }
 
     console.log(`[AUTH] 令牌交换成功`);
     return c.json<ApiResponse<GitHubAuthResponse>>({
